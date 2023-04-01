@@ -1,119 +1,113 @@
 import React, { useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import Slider from '@react-native-community/slider';
+import { 
+  Text, 
+  View, 
+  TextInput, 
+  StyleSheet, 
+  ImageBackground 
+} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
+const InputRenda = ({ onChange }) => {
+  return (
+    <TextInput
+      style={styles.input}
+      placeholder="Informe sua renda bruta mensal"
+      keyboardType="numeric"
+      onChangeText={(value) => onChange(value)}
+    />
+  );
+};
 
-import { StyleSheet, Text, View, ScrollView, FlatList, Switch } from 'react-native';
+const ResultadoImposto = ({ renda }) => {
+  let aliquota, dedu, imposto;
 
-export default function App() {
-  const [switchValue, setSwitchValue] = useState(false);
-  const [sliderValue, setSliderValue] = useState(0);
-  const [pickerValue, setPickerValue] = useState('item1');
+  if (renda <= 1400) {
+    aliquota = 0;
+    dedu = 0;
+  } else if (renda <= 2100) {
+    aliquota = 10;
+    dedu = 100;
+  } else if (renda <= 2800) {
+    aliquota = 15;
+    dedu = 270;
+  } else if (renda <= 3600) {
+    aliquota = 25;
+    dedu = 500;
+  } else {
+    aliquota = 30;
+    dedu = 700;
+  }
 
-  const data = [
-    { key: '1', value: 'SP' },
-    { key: '2', value: 'PR' },
-    { key: '3', value: 'SC' },
-    { key: '4', value: 'RS' },
-  ];
-
-  const renderListItem = ({ item }) => {
-    return (
-      <Text style={styles.listItem}>{item.value}</Text>
-    );
-  };
+  imposto = renda * (aliquota / 100) - dedu;
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>ScrollView exemplos</Text>
-      <View style={styles.section}>
-        <Text style={styles.title}>item 1</Text>
-        <Text style={styles.paragraph}>
-        Caro(a) amigo(a),
-
-Gostaria de convidá-lo(a) a participar de uma pesquisa sobre seu estado, cidade e idade. Esta pesquisa tem como objetivo coletar informações valiosas que podem ser usadas para melhorar a qualidade de vida das pessoas em sua comunidade.
-
-Ao responder a esta pesquisa, você terá a oportunidade de compartilhar suas opiniões e experiências, ajudando a criar um retrato mais preciso e completo de sua região. Suas respostas podem ser usadas para informar políticas públicas, projetos de desenvolvimento comunitário e outras iniciativas importantes.
-
-
-Agradeço antecipadamente pela sua contribuição.
-
-Atenciosamente,
-                        </Text>
-      </View>
-      
-      <View style={styles.section}>
-      <Text style={styles.header}>Qual estado você reside ? </Text>
-        <Text style={styles.title}>FlatList</Text>
-        <FlatList
-          data={data}
-          renderItem={renderListItem}
-        />
-      </View>
-      <View style={styles.section}>
-      <Text style={styles.header}>Qual capital do seu estado</Text>
-        <Text style={styles.title}>Picker</Text>
-        <Picker
-          selectedValue={pickerValue}
-          onValueChange={(itemValue) => setPickerValue(itemValue)}
-        >
-          <Picker.Item label="São Paulo" value="1" />
-          <Picker.Item label="Curitiba" value="2" />
-          <Picker.Item label="Florianopolis" value="3" />
-          <Picker.Item label="PortoAlegre" value="4" />
-        </Picker>
-      </View>
-      <View style={styles.section}>
-      <Text style={styles.header}>Qual sua idade ?</Text>
-        <Text style={styles.title}>Slider</Text>
-        <Slider
-          value={sliderValue}
-          onValueChange={(value) => setSliderValue(value)}
-          minimumValue={0}
-          maximumValue={100}
-          step={1}
-        />
-        <Text style={styles.sliderValue}>{sliderValue} Anos</Text>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.header}>Concorda em participar da nossa pesquisa ?</Text>
-        <Text style={styles.title}>Switch</Text>
-        <Switch
-          value={switchValue}
-          onValueChange={(value) => setSwitchValue(value)}
-        />
-      </View>
-    </ScrollView>
+    <View style={styles.resultadoContainer}>
+      <Text style={styles.resultadoTexto}>
+        Sua renda bruta mensal é R$ {renda.toFixed(2)}.
+      </Text>
+      <Text style={styles.resultadoTexto}>
+        O imposto a ser pago é R$ {imposto.toFixed(2)}.
+      </Text>
+    </View>
   );
-}
+};
+
+const TelaPrincipal = () => {
+  const [renda, setRenda] = useState('');
+
+  return (
+    <ImageBackground source={require('./assets/fotoimpo2.jpg')} style={styles.background}>
+      <View style={styles.container}>
+        <Text style={styles.titulo}>Calculadora de Imposto</Text>
+        <InputRenda onChange={(value) => setRenda(parseFloat(value))} />
+        {renda ? <ResultadoImposto renda={renda} /> : null}
+      </View>
+    </ImageBackground>
+  );
+};
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
+    width: '100%',
+    height: '100%',
+  },
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     padding: 20,
   },
-  header: {
-    fontSize: 24,
+  titulo: {
+    fontSize: 28,
     fontWeight: 'bold',
-  },
-  section: {
-    marginVertical: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  paragraph: {
-    fontSize: 16,
-  },
-  listItem: {
-    fontSize: 16,
-    paddingVertical: 5,
-  },
-  sliderValue: {
-    fontSize: 18,
+    marginBottom: 20,
     textAlign: 'center',
-    marginTop: 10,
+  },
+  input: {
+    backgroundColor: '#DDDDDD',
+    borderRadius: 15,
+    padding: 15,
+    margin: 15,
+    width: '100%',
+    fontSize: 20,
+    textAlign: 'center',
+  },
+  resultadoContainer: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    padding: 20,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  resultadoTexto: {
+    fontSize: 20,
+    marginVertical: 5,
+    textAlign: 'center',
   },
 });
+
+export default TelaPrincipal;
